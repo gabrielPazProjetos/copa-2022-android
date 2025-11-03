@@ -32,7 +32,7 @@ class MainViewModel @Inject constructor(
         getMatchesUseCase()
             .flowOn(Dispatchers.Main)
             .catch {
-                when(it) {
+                when (it) {
                     is NotFoundException ->
                         sendAction(MainUiAction.MatchesNotFound(it.message ?: "Erro sem mensagem"))
                     is UnexpectedException ->
@@ -49,12 +49,20 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 withContext(Dispatchers.Main) {
+                    val matchDomain = MatchDomain(
+                        id = match.id,
+                        name = match.name,
+                        location = match.location,
+                        date = match.date,
+                        notificationEnabled = match.notificationEnabled
+                    )
+
                     val action = if (match.notificationEnabled) {
                         disableNotificationUseCase(match.id)
-                        MainUiAction.DisableNotification(match)
+                        MainUiAction.DisableNotification(matchDomain)
                     } else {
-                        enableNotificationUseCase(match.id)
-                        MainUiAction.EnableNotification(match)
+                        enableNotificationUseCase(matchDomain)
+                        MainUiAction.EnableNotification(matchDomain)
                     }
 
                     sendAction(action)
@@ -69,7 +77,7 @@ data class MainUiState(
 )
 
 sealed interface MainUiAction {
-    object Unexpected: MainUiAction
+    object Unexpected : MainUiAction
     data class MatchesNotFound(val message: String) : MainUiAction
     data class EnableNotification(val match: MatchDomain) : MainUiAction
     data class DisableNotification(val match: MatchDomain) : MainUiAction
