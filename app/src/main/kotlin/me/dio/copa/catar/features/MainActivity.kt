@@ -1,6 +1,7 @@
 package me.dio.copa.catar.features
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -30,8 +31,20 @@ class MainActivity : ComponentActivity() {
     private fun observeActions() {
         viewModel.action.observe(this) { action ->
             when (action) {
-                is MainUiAction.MatchesNotFound -> TODO()
-                MainUiAction.Unexpected -> TODO()
+                is MainUiAction.MatchesNotFound -> {
+                    Toast.makeText(
+                        this,
+                        "Partidas não encontradas: ${action.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                MainUiAction.Unexpected -> {
+                    Toast.makeText(
+                        this,
+                        "Erro inesperado. Tente novamente mais tarde.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
                 is MainUiAction.DisableNotification ->
                     NotificationMatcherWorker.cancel(applicationContext, action.match)
                 is MainUiAction.EnableNotification ->
@@ -39,6 +52,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
 }
